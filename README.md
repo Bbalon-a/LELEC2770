@@ -17,3 +17,9 @@ TP3 :
 TP6 : 
 
 * _miner.py_ not completed 
+
+TP7-8:
+
+* _Q1.py_ completed and partial answers to (d) and (e)
+
+* _Q2.py_ completed apart (e) and partial answer for (d)
