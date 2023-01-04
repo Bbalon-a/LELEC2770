@@ -27,3 +27,10 @@ TP7-8:
 TP9: 
 
 * _dualec.py_ completed 
+
+TP10:
+
+* _master.py_ not working but completed
+* _minicircuit.py_ not working but completed
+
+Feel free to pull request if you find working implementation 
