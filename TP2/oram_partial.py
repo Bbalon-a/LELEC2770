@@ -55,9 +55,21 @@ class Client:
         path = BinaryTree.path_to_leaf(leaf_id)
         res_data = None
         # <To be done by students>
-        # walk through the path, for each block in each bucket read en
-        #re-encrypt, except for data at addr, for which re-encrypt None and put
+        #walk through the path, for each block in each bucket read --> (a) en
+        #re-encrypt --> (b), except for data at addr, for which re-encrypt None -->(c) and put
         #the data in res_data
+        for node_leaf in path:
+            for bucket_nb in range(self.bucket_size):
+                dec_block = self.crypto.dec(self.server.read(node_leaf,bucket_nb)) # --> (a)
+                if dec_block is None:
+                    self.server.write(node_leaf,bucket_nb,self.crypto.enc(None)) # --> (b)
+                else: 
+                    block_addr, block_data = dec_block
+                    if block_addr == addr:
+                        self.server.write(node_leaf,bucket_nb,self.crypto.enc(None)) # --> (c)
+                        res_data = block_data # -->(d)
+                    else:
+                        self.server.write(node_leaf,bucket_nb,self.crypto.enc(dec_block)) # --> (b)
         # </To be done by students>
         self._insert_block_at_root(addr, write_data if write_data is not None else res_data)
         return res_data
@@ -90,6 +102,10 @@ class Client:
         for i in range(self.bucket_size):
             dec_block = self.crypto.dec(self.server.read(node_id, i))
             if dec_block is not None and found_address is None:
+                print("-----------")
+                print("dec_block =",dec_block)
+                print("node_id",node_id)
+                print("path to leaf",BinaryTree.path_to_leaf(dec_block[0]))
                 found_address, found_data = dec_block
                 self.server.write(node_id, i, self.crypto.enc(None))
             else:
@@ -100,7 +116,13 @@ class Client:
         block_to_insert_left = None
         block_to_insert_right = None
         # <To be done by students>
-        # What should contain block_to_insert_left and block_to_insert_right? 
+        # What should contain block_to_insert_left and block_to_insert_right?
+        if found_address is not None:
+            path = BinaryTree.path_to_leaf(found_address) 
+            if left_child in path:
+                block_to_insert_left = (found_address,found_data)
+            elif right_child in path:
+                block_to_insert_right = (found_address,found_data)
         # </To be done by students>
 
         # process left child
@@ -206,16 +228,19 @@ def test(client, nbr_test=10**3):
         # read test
         addr = random.choice(addresses)
         r1 = client.query(addr)
+        print(i)
         assert r1 == state[addr]
+        
     print("It's working ! Nice job -;)")
 
 if __name__ == "__main__":
 
-    tree_depth = 10
+    tree_depth = 4
     bucket_size = 15
     nb_buckets = BinaryTree.nbr_nodes(tree_depth)
     server = BigStorageServer(nb_buckets, bucket_size)
     crypto = SuperCryptoSystem()
     client = Client(server, crypto, tree_depth, bucket_size)
+    
 
     test(client)

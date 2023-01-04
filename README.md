@@ -8,7 +8,7 @@ TP1 :
 
 TP2 : 
 
-* _oram.py_ not completed
+* _oram.py_ partialy completed (*evict* function is not good)
 
 TP3 : 
 
